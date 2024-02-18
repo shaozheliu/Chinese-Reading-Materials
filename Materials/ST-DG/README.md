@@ -2,11 +2,7 @@
 
 ---
 
-
-[//]: # (This paragraph is written in Chinese. )
-
 Motor imagery (MI) 已经成为脑机接口（BCI）研究中的经典范例。近年来，随着深度学习技术的进步，如卷积神经网络（CNNs）和循环神经网络（RNNs）的应用，已经运动想象分类领域取得了成功。但CNNs和RNNs并不能有效地提取大脑空间和时间信息，此外，不同个体主体之间的差异进一步复杂化了分类过程。为了解决这些问题，本文提出了一种基于域泛化的新型时空Transformer（ST-DG）用于EEG信号进行MI分类。该框架利用了一个时空Transformer架构来捕捉大脑的基本时空特征，同时利用域泛化技术来解决跨主体的变异性，并提高模型的泛化性能。在 BCI-IV 2a和 BCI-IV 2b 数据集的跨被试的实验中优于其它SOTA模型。
-
 
 ![](assets/title.png)
 
@@ -18,9 +14,9 @@ https://ieeexplore.ieee.org/document/10394657
 
 https://github.com/ziyujia/SalientSleepNet
 
-
-
+[//]: #
 ## **01. 背景简介**
+
 运动想象（Motor Imagery, MI），顾名思义，人在想象自己肢体（或肌肉）运动但没有实际运动输出时，人的特定脑区仍会有激活。
 通过分析脑电信号，检测识别不同脑区的激活效果来判断用户意图，进而实现人脑与外部设备之间的直接通信与控制。
 基于运动想象的脑机接口系统主要由三部分模块组成：EEG信号采集、信号处理及解码、控制命令输出。
@@ -34,13 +30,13 @@ https://github.com/ziyujia/SalientSleepNet
 ### **2.1 挑战**
 
 #### 2.1.1 缺乏有效提取脑空间和时间信息的方法
-在EEG信号中，脑电时间序列的时空特征未被很好的利用。 
+
+在EEG信号中，脑电时间序列的时空特征未被很好的利用。
 CNN和RNN模型在EEG信号的时空特征捕捉上有一些缺点。我们从归纳偏置（Inductive bias）[^1]的角度来思考这个问题。
 CNN方法具有平移不变性和局部性的归纳偏置，在捕捉空间不变和局部特征上具有优势；
 RNN方法具有时间变换不变性和序列性的归纳偏置，擅长捕捉EEG信号的时间信息。
 然而，CNN方法可能难以保留EEG时间序列数据中的某些时间细节，而RNNs只考虑若干步之前和当前情况，
 可能会错过嵌入在EEG信号中的信息。
-
 
 ![](SalientSleepNet.assets/2.png)
 
@@ -51,124 +47,141 @@ RNN方法具有时间变换不变性和序列性的归纳偏置，擅长捕捉EE
 ![](SalientSleepNet.assets/3.jpg)
 
 ### **2.2 贡献**
+
 1. 将Transformer和Domain Generalization相结合，用于运动想象分类。
 2. 设计了一个时空Transformer模块，用于捕捉EEG信号中的时空特征。
 3. 设计了一个域泛化模块，用于捕捉跨被试不变的特征，解决被试差异性的问题。
 4. 实验结果表明，与baseline方法相比，ST-DG达到了领域内最先进的性能。
 
-## **03. 问题定义**
-
-本文提出的模型接收一个序列的睡眠阶段，并输出一个预测的标签序列。每个睡眠阶段被定义为$x \in \mathbb{R}^{n\times C}$，其中$n$是一个睡眠阶段内的采样点个数，$C$为睡眠阶段的通道数（在本文中为EEG和EOG通道）。
-
-输入睡眠序列可以定义为$S = \{x_{1},x_{2},\ldots,x_{L}\}$，其中$x_{i}$是一个睡眠阶段（$i \in [1,2,\cdots,L]$）并且$L$是睡眠阶段的数量。
-
-睡眠分期问题可以被定义为：学习一个基于多模态显著性波形检测网络的映射函数$F$，将睡眠序列$S$映射到相应睡眠阶段预测序列$\hat{Y}$，其中$\hat{Y} = \{\hat{y}_{1},\hat{y}_{2},\ldots, \hat{y}_{L}\}$并且$\hat{y}_{i}$是$x_{i}$的分类结果。根据AASM标准，每个$\hat{y}_{i} \in \{0,1,2,3,4\}$与5个睡眠阶段W，N1，N2，N3和REM相对应。
-
-## **04. 基于域泛化的时空Transformer**
+## **03. 基于域泛化的时空Transformer**
 
 ST-DG的总体架构如图1所示，网络的两个关键模块如下：
 
-1）时间Transformer模块，学习EEG信号中的时间特征；
+1）时空Transformer模块，学习EEG信号中的时间特征；
 
-2）空间Transformer模块，学习EEG信号中的空间特征；
-
-3）域泛化模块，利用EEG序列被试标签，构造domain label，在Domain Generalization的框架下进行。
-
+2）域泛化模块，利用EEG序列被试标签，构造domain label，在Domain Generalization的框架下进行。
 
 ![](assets/1.jpg)
 
-### **4.1 双流$\rm U^2$结构**
+### **3.1 时空Transformer模块**
 
-人类专家主要根据EEG和EOG信号中的显著性波形，如纺锤波、K复合波和锯齿波等来对睡眠阶段进行分类。现有的睡眠分期模型通过将原始信号转换为时频图像间接提取显著性波形特征。这可能会导致信息丢失，并且需要一定领域知识。为了直接捕获原始EEG和EOG信号中的显著性波形，我们设计了一个双流$\rm U^2$结构（Two-Stream $\rm U^2$-Structure）来捕获不同信号的特征，如图3所示。具体来说，EEG信号和EOG信号被输入到两个独立的$\rm U^2$结构中学习不同模态的显著性波形特征。
+脑电信号在不同运动想象任务下，时空特征是一种非常有效的特征。我们设计了一种时空Transformer用于动态捕获这些有价值的特征。
+该模块由两个子组件构成：空间Transformer与时间Transformer。该模块的整体结构如图2所示。
 
-每个$\rm U^2$结构是一个编码器解码器结构，并且它由多个嵌套的U型单元（U-unit）组成。具体来说，每个U-unit有三个组件：一个通道变形层（channel-reshape layer），一个类U结构（U-like structure）还有一个残差连接（residual connection）。
+![](assets/2.png)
 
-1. 对于一个1D的特征图 ，通道变形层将它转换为一个中间特征图来控制整个U型单元的通道数：
+首先，来自不同被试的EEG信号被混合在一起，形成了整体的三维张量（样本数，通道数，时间步长）。
+为了后文的表述方便，我们将样本数的维度省去，将输入网络第一层的数据维度表示成：
 
-$$X_{m}=Reshape(X),$$
+$$
+X \in R^{C \times T}
 
-其中$Reshape$表示通道变形操作，$X_{m}$表示中间特征图。
+$$
 
-2. U-like structure编码并解码中间特征图，并获得特征图$X_{m}'$：
+齐中$C$表示通道数，$T$表示时间步长。
 
-$$X_{m}'=U_{l}(X_{m}),$$
+1. 对于一个2D的原始输入$X$ ，从EEG脑电通道维度（空间），利用Transformer Encoder的结构，计算特征图：
 
-其中$U_{l}$表示深度为$l$的U-like structure（我们的模型中$l=4$）。
+$$
+Q,K,V = \operatorname{Linear}(X), X \in R^{C \times T}
 
-3. 残差连接通过加法操作融合特征图$X_{m}$和$X_{m}'$，以此降低深度网络中的退化问题：
+$$
 
-$$X_{m}'' = X_{m} + X_{m}',$$
+$$
+\operatorname{Attention_s}(Q,K,V) = \operatorname{softmax}(\frac{QK^T}{\sqrt{d_s}})V
 
-其中$X_{m}''$是U-unit的输出。
+$$
 
-多个U-unit组成$\rm U^{2}$结构。具体来讲，每个$\rm U^{2}$结构总共有5个U-unit用于编码，4个U-unit用于解码。
+2. 对于一个2D的原始输入$X$ ，从EEG时间步长的维度（时间），利用Transformer Encoder的结构，计算特征图：
 
-### **4.2 多尺度特征提取模块**
+$$
+{\operatorname{Attention_t}(Q,K,V)} = \operatorname{softmax}(\frac{Q^T{K}}{\sqrt{d_t}})V^T
 
-睡眠过渡规则对睡眠分期有十分重要的贡献。过渡规则有多尺度特性：小尺度，中等尺度，大尺度。先前的工作忽略了过渡规则的多尺度特性，并使用RNN隐式地学习睡眠过渡规则。除此之外，现有文献表明RNN模型也难于调整和优化。
+$$
 
-![](SalientSleepNet.assets/5.jpg)
+$$
+\operatorname{head_t} = \operatorname{Attention_t}(Q{W_i}^Q,K{W_i}^K,V{W_i}^V)
 
-为了解决上面的问题，我们设计了一个多尺度特征提取模块（**M**ulti-**S**cale **E**xtraction module，MSE）来显式捕获多尺度睡眠过渡规则。如图4所示，MSE多个不同膨胀率的空洞卷积组成，用不同尺度的感受野来捕获特征。具体来说，我们使用4个空洞卷积，膨胀率从1到4，来将输入特征图进行变形。然后，从不同尺度感受野学到的特征图将会被进行连接操作，获得一个多尺度的特征图：
+$$
 
-$$X_{d}^{r} = DConv_{r}(X_{m}''), r \in [1,2,3,4],$$
+$$
+\operatorname{MultiHead} = \operatorname{Concat({head_1},...{head_h})}{W^O}
 
-$$X_{ms} = Concat(X_{d}^{1},X_{d}^{2},X_{d}^{3},X_{d}^{4}),$$
+$$
 
-其中$X_{m}''$是输入特征图，$DConv_{r}$是有着膨胀率为$r$的空洞卷积。$X_{d}^{r}$是空洞卷积$DConv_{r}$的输出，$X_{ms}$是多尺度特征图。
+在分别经过时空Transformer的Encoder层后，特征图的维度并没有发生变化，${Attention_s}\in R^{C \times T}$, ${Attention_t}\in R^{T \times C}$
 
-除此之外，为了降低模型的参数，我们在编码器和解码器之间使用了瓶颈层（也就是在MSE中实现）。它降低了连接后的特征图的通道数，让模型轻量化，由两个卷积操作组成：
+3. 为了将时间空间的Transformer特征图进行融合，我们将特征图进行加权求和，如下所示：
 
-$$X_{b} = Bottleneck(X_{ms}),$$
+$$
+\operatorname{FeatureMap} = Attention_s + （1-\alpha）* Attention_t
 
-其中$Bottleneck$是瓶颈层的操作，$X_{b}$是最终得到的经过通道降维的多尺度特征图。$X_{b}$的通道数为$C_{out}$，$C_{out} = C_{in} / rate$。$C_{in}$是$X_{ms}$的通道数并且$rate$是瓶颈层的下采样率。
+$$
 
-### **4.3 多模态注意力模块**
+其中$\alpha$是网络中一个可学习的参数。
 
-不同的模态有不同的特征，有助于对特定的睡眠阶段进行分类。然而，现有的模型忽略了不同模态对分类特定睡眠阶段有不同的贡献。
-为了加强对特定的睡眠阶段分类有更大的贡献的模态特征，我们设计了多模态注意力模块（**M**ulti**M**odal **A**ttention module，MMA）。如图5所示，MMA有两个主要组件：用于融合两个流输出的特征图的模态融合组件，用于筛选对特定睡眠阶段分类更重要的特征的通道级的注意力组件。
+### **3.2 域泛化模块**
 
-![](SalientSleepNet.assets/6.jpg)
+受试者差异性的问题在运动想象任务中比较普遍 。为了缓解个体间差异的影响，我们设计了一个域泛化方法来提升模型在跨被试情形下的泛化性能。在域泛化的框架下，整个模型可以被看成三个部分：
 
-1. 模态融合组件由下式定义：
+1. 特征提取器（Label Predictor）
 
-$$X_{fuse} = X_{EEG} + X_{EOG} + (X_{EEG}\odot X_{EOG}),$$
+$$
+{\mathbb{X}} = {\mathcal{G}_f(X;\theta_f)}
 
-其中$X_{fuse}$是融合后的特征图。符号$\odot$代表逐点相乘操作。$X_{EEG}$和$X_{EOG}$是通过EEG和EOG流学到的特征图。
+$$
 
-2. 特征图$X_{fuse}$被输入到通道级注意力组件中来筛选融合特征图中更重要的通道：
+其中 $X$ 表示模型一开始的输入数据，$theta_f$ 表示模型特征提取器部分（ST-Transformer）的可训练参数，$\mathbb{X}$ 对应于嵌入了时间和空间信息的特征图。
 
-$$X_{att} = \sigma(FC_{2}(\delta(FC_{1}(GAP(X_{fuse}))))),$$
+2. 类别判别器（Label Predictor） 和 域判别器（Domain Classifier）
 
-$$X_{att}' = X_{fuse}\odot X_{att},$$
+我们将经过特征提取器的特征图分别输入类别判别器和域判别器，如下所示：
 
-其中$GAP$是全局平均池化操作，$FC_{i}$表示第$i$个全连接层。符号$\delta$表示ReLU激活函数，$\sigma$表示sigmoid激活函数。$X_{att}$是中间特征图并且$X_{att}'$是这个组件的输出特征图。
+$$
+\hat{y_i} = \operatorname{softmax}({\mathcal{G}_l(\mathbb{X}_i;\theta_y)})
 
+$$
 
-### **4.4 段级分类器**
+$$
+\hat{d_i} = \operatorname{softmax}({\mathcal{G}_d(\mathbb{X}_i;\theta_d)})
 
-现有计算机视觉中的显著目标检测模型是逐像素(逐点)分类。这些模型不能直接应用于生理信号的段级分类。因此，我们设计了一个分段分类器，它将像素级特征图映射到段级预测标签序列。如图R.1所示，我们使用一个平均池化层来将1D特征图从$X_{att}' \in \mathbb{R}^{L'}$变形为$X_{pool} \in \mathbb{R}^{L}$。其中$L'= L*n$，$L$是睡眠阶段的个数，$n$是一个睡眠阶段内的采样点个数。然后，我们使用一个softmax激活的卷积层降低$X_{pool}$的维度，并把它映射到预测标签序列$\hat{Y}$。
+$$
 
-![](SalientSleepNet.assets/r1.jpg)
+其中$\mathbb{X}_i$表示源自第$i$个样本的特征图，$\mathcal{G}_l$和$\mathcal{G}_d$结果$y_i$和$d_i$都是一个多分类分类器的输出，它们的损失函数可以定义为：
 
-## **05. 实验**
+$$
+{\mathcal{L}_y = -\frac{1}{N}{{\sum_{i=1}^N}{\sum_{j=1}^{C_y}}y_{i,j}} {log}\hat{y_{i,j}}}
 
-在Sleep-EDF-39和Sleep-EDF-153两个数据集上检验了SalientSleepNet的性能，之后与7种Baseline方法进行了比较，结果如表1所示，更多的实验设置、Baseline介绍等请参阅我们的论文原文。
+$$
 
-![](SalientSleepNet.assets/7.jpg)
+$$
+{\mathcal{L}_d = -\frac{1}{N}{{\sum_{i=1}^N}{\sum_{j=1}^{C_d}}d_{i,j}} {log}\hat{d_{i,j}}}
 
-实验结果表明，与其他基准方法相比，SalientSleepNet获得了最佳的整体性能。
+$$
 
-传统的机器学习模型(SVM和RF)无法捕获多样的特征。一些混合深度学习模型，如DeepSleepNet、SeqSleepNet和TinySleepNet，利用CNN学习睡眠阶段的特征，RNN捕捉睡眠期之间的过渡规则。因此这些模型比传统的机器学习模型有更好的性能。虽然混合模型可以达到较高的精度，但这些模型很难优化。另外，现有的模型没有充分利用不同模态下的显著性波形特征，有些模型需要时频图像作为输入，可能导致部分信息丢失。与以往的研究不同的是，我们的模型能够同时从原始信号中捕捉多模态数据的显著性特征和多尺度睡眠过渡规则。此外，我们的模型加强了不同模态特征的贡献，以分类不同的睡眠阶段。因此，与其他基准方法相比，SalientSleepNet获得了更好的整体性能。
+$$
+{\mathcal{L}_{DG} = -\frac{1}{N}{{\sum_{i=1}^N}{\sum_{j=1}^{C_y}}y_{i,j}} {log}\hat{y_{i,j}} + {\lambda}\frac{1}{N}{{\sum_{i=1}^N}{\sum_{j=1}^{C_d}}d_{i,j}} {log}\hat{d_{i,j}}}
 
-如图6所示我们将$\rm U^2$结构的逐点输出可视化，这在很大程度上阐明了我们的模型可以检测出多模态输入信号中的显著性波形。总体而言，我们的模型可以检测到这些显著性波形，说明我们的模型在一定程度上是可解释的。
+$$
 
-![](SalientSleepNet.assets/8.jpg)
+其中，为了建立类别判别器和域判别器的对抗关系，我们在反向传播的过程中引入了梯度反转层（GRL），使得我们的模型能够将时空特征和域不变特征的学习融合在同一个框架内：在实现整体的损失最小化的情况下，即模型能够很好的区分运动想象的具体类别；但域分类器的损失最大，即模型无法区分该样本来自于哪个被试。通过这种方法，模型将尽可能地学习跨被试不变的特征，从而提高泛化性能。
 
-## **06. 结论**
+## **04. 实验**
 
-本文提出了一种用于睡眠分期的多模态显著波形检测网络。我们的模型是将$\rm U^2$-Net模型从视觉显著性检测领域迁移进睡眠分期领域的首次尝试。SalientSleepNet不仅可以有效地检测和融合多模态实验数据中的显著性波型，还可以提取睡眠期之间的多尺度过渡规则。结果表明，SalientSleepNet达到了最先进的性能。并且在现有的深度学习模型中，我们模型的参数最少。此外，本模型也是处理多模态生理时间序列模型的通用框架，可以被直接应用于其余时间序列分类任务。
+本文在BCI-2A和BCI2B两个数据集上检验了ST-DG的性能，之后与3种Baseline方法进行了比较，结果如下表所示，更多的实验设置、Baseline介绍等请参阅我们的论文原文。
 
+![](assets/3.png)
 
-[^1]:https://lolitasian.blog.csdn.net/article/details/121656279
-[^2]:[https://lolitasian.blog.csdn.net/article/details/121656279](https://lolitasian.blog.csdn.net/article/details/121656279)
+实验结果表明，与其他基准方法相比，ST-DG在跨被试的试验下获得了最佳的整体性能。
+
+同时，为了验证我们各模块的有效性，我们将ST-DG各个组件进行拆分进行了消融实验，实验结果如下所示：
+
+![](assets/4.png)
+
+实验结果表明，ST-DG的组合，是最优的。
+
+## **05. 结论**
+
+本文提出了一种用于MI分类的创新方法：ST-DG。 ST-DG不仅考虑了脑电信号的空间和时间动态特征，还考虑了受试者差异的问题。 具体来说，本文设计了一种时空Transformer，以有效地捕获与MI分类最相关的时空特征。此外，通过将域泛化和时空Transformer集成到一个统一的框架中，ST-DG成功地提取了跨被试不变的特征。通过对两个公开可用的数据集进行的实验评估，证明了ST-DG的最优性能。同时，我们的方法可以很方便的用于各种时间序列分类场景。
+
+[^1]: https://lolitasian.blog.csdn.net/article/details/121656279
