@@ -164,14 +164,14 @@ $$
 本文在BCI-2A和BCI2B两个数据集上检验了ST-DG的性能，之后与3种Baseline方法进行了比较，结果如下表所示，更多的实验设置、Baseline介绍等请参阅我们的论文原文。
 
 [comment]: <> (![]&#40;assets/3.png&#41;)
-<img src="assets/3.png" width="800px">
+<img src="assets/3.png" width="600px">
 
 实验结果表明，与其他基准方法相比，ST-DG在跨被试的试验下获得了最佳的整体性能。
 
 同时，为了验证我们各模块的有效性，我们将ST-DG各个组件进行拆分进行了消融实验，实验结果如下所示：
 
 [comment]: <> (![]&#40;assets/4.png&#41;)
-<img src="assets/4.png" width="800px">
+<img src="assets/4.png" width="600px">
 
 实验结果表明，ST-DG的组合，是最优的。
 
