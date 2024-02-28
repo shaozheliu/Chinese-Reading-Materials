@@ -52,7 +52,7 @@ ST-DG的总体架构如图1所示，网络的两个关键模块如下：
 
 [comment]: <> (![]&#40;assets/1.jpg&#41;)
 
-<img src="assets/1.jpg" width="800px">
+<img src="assets/1.jpg" width="600px">
 
 
 ### **3.1 时空Transformer模块**
@@ -61,7 +61,7 @@ ST-DG的总体架构如图1所示，网络的两个关键模块如下：
 该模块由两个子组件构成：空间Transformer与时间Transformer。该模块的整体结构如图2所示。
 
 [comment]: <> (![]&#40;assets/2.png &#41;)
-<img src="assets/2.png" width="800px">
+<img src="assets/2.png" width="600px">
 
 首先，来自不同被试的EEG信号被混合在一起，形成了整体的三维张量（样本数，通道数，时间步长）。
 为了后文的表述方便，我们将样本数的维度省去，将输入网络第一层的数据维度表示成：
