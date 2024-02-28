@@ -52,7 +52,7 @@ ST-DG的总体架构如图1所示，网络的两个关键模块如下：
 
 [comment]: <> (![]&#40;assets/1.jpg&#41;)
 
-<img src="assets/1.jpg" width="450px">
+<img src="assets/1.jpg" width="800px">
 
 
 ### **3.1 时空Transformer模块**
