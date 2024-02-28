@@ -1,4 +1,4 @@
-若公式无法正常显示，推荐使用 [GitHub with MathJax](https://chrome.google.com/webstore/detail/github-with-mathjax/ioemnmodlmafdkllaclgeombjnmnbima) 插件，或直接阅读 [HTML版](https://github.com/shaozheliu/STDG/STDG.html) / [PDF版](https://github.com/shaozheliu/STDG/STDG.pdf)
+若公式无法正常显示，推荐使用 [GitHub with MathJax](https://chrome.google.com/webstore/detail/github-with-mathjax/ioemnmodlmafdkllaclgeombjnmnbima) 插件，或直接阅读 [HTML版](https://github.com/shaozheliu/Reading-Materials/blob/main/Materials/ST-DG/STDG.html) / [PDF版](https://github.com/shaozheliu/Reading-Materials/blob/main/Materials/ST-DG/STDG.pdf)
 
 ---
 
