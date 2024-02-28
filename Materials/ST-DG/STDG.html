@@ -1,0 +1,86 @@
+<html><head><meta charset="utf-8" /><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor/dist/index.css"/><script src="https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor/dist/js/i18n/zh_CN.js"></script><script src="https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor/dist/method.min.js"></script></head><body style="width: 1075px;"><div class="vditor-reset" id="preview"><p>若公式无法正常显示，推荐使用 <a href="https://chrome.google.com/webstore/detail/github-with-mathjax/ioemnmodlmafdkllaclgeombjnmnbima">GitHub with MathJax</a> 插件，或直接阅读 <a href="https://ziyujia.github.io/Chinese-Reading-Materials/Materials/SalientSleepNet/SalientSleepNet.html">HTML版</a> / <a href="SalientSleepNet.pdf">PDF版</a></p>
+<hr />
+<p>Motor imagery (MI) 已经成为脑机接口（BCI）研究中的经典范例。近年来，随着深度学习技术的进步，如卷积神经网络（CNNs）和循环神经网络（RNNs）的应用，已经运动想象分类领域取得了成功。但CNNs和RNNs并不能有效地提取大脑空间和时间信息，此外，不同个体主体之间的差异进一步复杂化了分类过程。为了解决这些问题，本文提出了一种基于域泛化的新型时空Transformer（ST-DG）用于EEG信号进行MI分类。该框架利用了一个时空Transformer架构来捕捉大脑的基本时空特征，同时利用域泛化技术来解决跨主体的变异性，并提高模型的泛化性能。在 BCI-IV 2a和 BCI-IV 2b 数据集的跨被试的实验中优于其它SOTA模型。</p>
+<p><img src="assets/title.png" alt="" /></p>
+<p><strong>论文链接：</strong></p>
+<p><a href="https://ieeexplore.ieee.org/document/10394657">https://ieeexplore.ieee.org/document/10394657</a></p>
+<p><strong>论文代码链接：</strong></p>
+<p><a href="https://github.com/shaozheliu/STDG">https://github.com/shaozheliu/STDG</a></p>
+<h2 id="01--背景简介"><strong>01. 背景简介</strong><a id="vditorAnchor-01--背景简介" class="vditor-anchor" href="#01--背景简介"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h2>
+<p>运动想象（Motor Imagery, MI），顾名思义，人在想象自己肢体（或肌肉）运动但没有实际运动输出时，人的特定脑区仍会有激活。 通过分析脑电信号，检测识别不同脑区的激活效果来判断用户意图，进而实现人脑与外部设备之间的直接通信与控制。 基于运动想象的脑机接口系统主要由三部分模块组成：EEG信号采集、信号处理及解码、控制命令输出。其中，EEG信号采集模块负责采集被试的脑电进行放大；信号处理及解码进行EEG解码，对信号进行滤波预处理,提取EEG的特征，然后分类器对特征进行分类；<mark><font color="#FF0000">运动想象系统的核心问题在于如何对有效地对EEG信号进行解码，其中，特征提取算法和分类器设计是解码的关键所在。</font></mark>目前常见的运动想象部位为：左手，右手，双脚和舌头，基本是一个多分类问题。</p>
+<h2 id="02--动机"><strong>02. 动机</strong><a id="vditorAnchor-02--动机" class="vditor-anchor" href="#02--动机"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h2>
+<h3 id="2-1-挑战"><strong>2.1 挑战</strong><a id="vditorAnchor-2-1-挑战" class="vditor-anchor" href="#2-1-挑战"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h3>
+<h4 id="2-1-1-缺乏有效提取脑空间和时间信息的方法">2.1.1 缺乏有效提取脑空间和时间信息的方法<a id="vditorAnchor-2-1-1-缺乏有效提取脑空间和时间信息的方法" class="vditor-anchor" href="#2-1-1-缺乏有效提取脑空间和时间信息的方法"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h4>
+<p>在EEG信号中，脑电时间序列的时空特征未被很好的利用。<br />
+CNN和RNN模型在EEG信号的时空特征捕捉上有一些缺点。我们从归纳偏置（Inductive bias）的角度来思考这个问题。<br />
+CNN方法具有平移不变性和局部性的归纳偏置，在捕捉空间不变和局部特征上具有优势；<br />
+RNN方法具有时间变换不变性和序列性的归纳偏置，擅长捕捉EEG信号的时间信息。<br />
+然而，CNN方法可能难以保留EEG时间序列数据中的某些时间细节，而RNNs只考虑若干步之前和当前情况，<br />
+可能会错过嵌入在EEG信号中的信息。</p>
+<h4 id="2-1-2-受试者差异性问题尤为突出">2.1.2 受试者差异性问题尤为突出<a id="vditorAnchor-2-1-2-受试者差异性问题尤为突出" class="vditor-anchor" href="#2-1-2-受试者差异性问题尤为突出"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h4>
+<p>在运动想象分类任务中，受试者的差异性很大，这意味着在一个被试上进行训练的模型，在另一个被试上的泛化性能会降低。这种跨被试的差异性问题通常被认为是Domain shift的问题。一些研究者利用目标域被试的数据进行模型微调来解决这个问题，但这种方法通常因其耗时高的性质而受到阻碍。而迁移学习使研究人员能够跨不同的被试和任务进行知识的迁移，从而提高分类的准确性和稳健性。Domain Generalization（域泛化）通过利用源域的数据，不依赖于来自目标域的信息，来提升模型的泛化性能。这使得DG成为解决MI分类问题中受试者差异性挑战的合适选择。</p>
+<h3 id="2-2-贡献"><strong>2.2 贡献</strong><a id="vditorAnchor-2-2-贡献" class="vditor-anchor" href="#2-2-贡献"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h3>
+<ol>
+<li>将Transformer和Domain Generalization相结合，用于运动想象分类。</li>
+<li>设计了一个时空Transformer模块，用于捕捉EEG信号中的时空特征。</li>
+<li>设计了一个域泛化模块，用于捕捉跨被试不变的特征，解决被试差异性的问题。</li>
+<li>实验结果表明，与baseline方法相比，ST-DG达到了领域内最先进的性能。</li>
+</ol>
+<h2 id="03--基于域泛化的时空Transformer"><strong>03. 基于域泛化的时空Transformer</strong><a id="vditorAnchor-03--基于域泛化的时空Transformer" class="vditor-anchor" href="#03--基于域泛化的时空Transformer"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h2>
+<p>ST-DG的总体架构如图1所示，网络的两个关键模块如下：</p>
+<p>1）时空Transformer模块，学习EEG信号中的时间特征；</p>
+<p>2）域泛化模块，利用EEG序列被试标签，构造domain label，在Domain Generalization的框架下进行。</p>
+<p><img src="assets/1.jpg" alt="" /></p>
+<h3 id="3-1-时空Transformer模块"><strong>3.1 时空Transformer模块</strong><a id="vditorAnchor-3-1-时空Transformer模块" class="vditor-anchor" href="#3-1-时空Transformer模块"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h3>
+<p>脑电信号在不同运动想象任务下，时空特征是一种非常有效的特征。我们设计了一种时空Transformer用于动态捕获这些有价值的特征。<br />
+该模块由两个子组件构成：空间Transformer与时间Transformer。该模块的整体结构如图2所示。</p>
+<p><img src="assets/2.png" alt="" /></p>
+<p>首先，来自不同被试的EEG信号被混合在一起，形成了整体的三维张量（样本数，通道数，时间步长）。<br />
+为了后文的表述方便，我们将样本数的维度省去，将输入网络第一层的数据维度表示成：</p>
+<div class="language-math">X \in R^{C \times T}</div>
+<p>其中<span class="language-math">C</span>表示通道数，<span class="language-math">T</span>表示时间步长。</p>
+<ol>
+<li>对于一个2D的原始输入<span class="language-math">X</span> ，从EEG脑电通道维度（空间），利用Transformer Encoder的结构，计算特征图：</li>
+</ol>
+<div class="language-math">Q,K,V = \operatorname{Linear}(X), X \in R^{C \times T}</div>
+<div class="language-math">\operatorname{Attention_s}(Q,K,V) = \operatorname{softmax}(\frac{QK^T}{\sqrt{d_s}})V</div>
+<ol start="2">
+<li>对于一个2D的原始输入<span class="language-math">X</span> ，从EEG时间步长的维度（时间），利用Transformer Encoder的结构，计算特征图：</li>
+</ol>
+<div class="language-math">{\operatorname{Attention_t}(Q,K,V)} = \operatorname{softmax}(\frac{Q^T{K}}{\sqrt{d_t}})V^T</div>
+<div class="language-math">\operatorname{head_t} = \operatorname{Attention_t}(Q{W_i}^Q,K{W_i}^K,V{W_i}^V)</div>
+<div class="language-math">\operatorname{MultiHead} = \operatorname{Concat({head_1},...{head_h})}{W^O}</div>
+<p>在分别经过时空Transformer的Encoder层后，特征图的维度并没有发生变化，<span class="language-math">{Attention_s}\in R^{C \times T}</span>, <span class="language-math">{Attention_t}\in R^{T \times C}</span></p>
+<ol start="3">
+<li>为了将时间空间的Transformer特征图进行融合，我们将特征图进行加权求和，如下所示：</li>
+</ol>
+<div class="language-math">\operatorname{FeatureMap} = Attention_s + （1-\alpha）* Attention_t</div>
+<p>其中<span class="language-math">\alpha</span>是网络中一个可学习的参数。</p>
+<h3 id="3-2-域泛化模块"><strong>3.2 域泛化模块</strong><a id="vditorAnchor-3-2-域泛化模块" class="vditor-anchor" href="#3-2-域泛化模块"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h3>
+<p>受试者差异性的问题在运动想象任务中比较普遍 。为了缓解个体间差异的影响，我们设计了一个域泛化方法来提升模型在跨被试情形下的泛化性能。在域泛化的框架下，整个模型可以被看成三个部分：</p>
+<ol>
+<li>特征提取器（Label Predictor）</li>
+</ol>
+<div class="language-math">{\mathbb{X}} = {\mathcal{G}_f(X;\theta_f)}</div>
+<p>其中 <span class="language-math">X</span> 表示模型一开始的输入数据，<span class="language-math">theta_f</span> 表示模型特征提取器部分（ST-Transformer）的可训练参数，<span class="language-math">\mathbb{X}</span> 对应于嵌入了时间和空间信息的特征图。</p>
+<ol start="2">
+<li>类别判别器（Label Predictor） 和 域判别器（Domain Classifier）</li>
+</ol>
+<p>我们将经过特征提取器的特征图分别输入类别判别器和域判别器，如下所示：</p>
+<div class="language-math">\hat{y_i} = \operatorname{softmax}({\mathcal{G}_l(\mathbb{X}_i;\theta_y)})</div>
+<div class="language-math">\hat{d_i} = \operatorname{softmax}({\mathcal{G}_d(\mathbb{X}_i;\theta_d)})</div>
+<p>其中<span class="language-math">\mathbb{X}_i</span>表示源自第<span class="language-math">i</span>个样本的特征图，<span class="language-math">\mathcal{G}_l</span>和<span class="language-math">\mathcal{G}_d</span>结果<span class="language-math">y_i</span>和<span class="language-math">d_i</span>都是一个多分类分类器的输出，它们的损失函数可以定义为：</p>
+<div class="language-math">{\mathcal{L}_y = -\frac{1}{N}{{\sum_{i=1}^N}{\sum_{j=1}^{C_y}}y_{i,j}} {log}\hat{y_{i,j}}}</div>
+<div class="language-math">{\mathcal{L}_d = -\frac{1}{N}{{\sum_{i=1}^N}{\sum_{j=1}^{C_d}}d_{i,j}} {log}\hat{d_{i,j}}}</div>
+<div class="language-math">{\mathcal{L}_{DG} = -\frac{1}{N}{{\sum_{i=1}^N}{\sum_{j=1}^{C_y}}y_{i,j}} {log}\hat{y_{i,j}} + {\lambda}\frac{1}{N}{{\sum_{i=1}^N}{\sum_{j=1}^{C_d}}d_{i,j}} {log}\hat{d_{i,j}}}</div>
+<p>其中，为了建立类别判别器和域判别器的对抗关系，我们在反向传播的过程中引入了梯度反转层（GRL），使得我们的模型能够将时空特征和域不变特征的学习融合在同一个框架内：在实现整体的损失最小化的情况下，即模型能够很好的区分运动想象的具体类别；但域分类器的损失最大，即模型无法区分该样本来自于哪个被试。通过这种方法，模型将尽可能地学习跨被试不变的特征，从而提高泛化性能。</p>
+<h2 id="04--实验"><strong>04. 实验</strong><a id="vditorAnchor-04--实验" class="vditor-anchor" href="#04--实验"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h2>
+<p>本文在BCI-2A和BCI2B两个数据集上检验了ST-DG的性能，之后与3种Baseline方法进行了比较，结果如下表所示，更多的实验设置、Baseline介绍等请参阅我们的论文原文。</p>
+<p><img src="assets/3.png" alt="" /></p>
+<p>实验结果表明，与其他基准方法相比，ST-DG在跨被试的试验下获得了最佳的整体性能。</p>
+<p>同时，为了验证我们各模块的有效性，我们将ST-DG各个组件进行拆分进行了消融实验，实验结果如下所示：</p>
+<p><img src="assets/4.png" alt="" /></p>
+<p>实验结果表明，ST-DG的组合，是最优的。</p>
+<h2 id="05--结论"><strong>05. 结论</strong><a id="vditorAnchor-05--结论" class="vditor-anchor" href="#05--结论"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h2>
+<p>本文提出了一种用于MI分类的创新方法：ST-DG。ST-DG不仅考虑了脑电信号的空间和时间动态特征，还考虑了受试者差异的问题。 具体来说，本文设计了一种时空Transformer，以有效地捕获与MI分类最相关的时空特征。此外，通过将域泛化和时空Transformer集成到一个统一的框架中，ST-DG成功地提取了跨被试不变的特征。通过对两个公开可用的数据集进行的实验评估，证明了ST-DG的最优性能。同时，我们的方法可以很方便的用于各种时间序列分类场景。</p>
+</div><script>    const previewElement = document.getElementById('preview');    Vditor.setContentTheme('idea-light', 'https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor/dist/css/content-theme');    Vditor.codeRender(previewElement);    Vditor.highlightRender({"enable":true,"lineNumber":false,"style":"dracula"}, previewElement, 'https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor');    Vditor.mathRender(previewElement, { cdn: 'https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor',math: {"engine":"KaTeX","inlineDigit":true,"macros":{}}});    Vditor.mermaidRender(previewElement, 'https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor', 'light');    Vditor.flowchartRender(previewElement, 'https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor');    Vditor.graphvizRender(previewElement, 'https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor');    Vditor.chartRender(previewElement, 'https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor', 'light');    Vditor.mindmapRender(previewElement, 'https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor', 'light');    Vditor.abcRender(previewElement, 'https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor');    Vditor.mediaRender(previewElement);    Vditor.speechRender(previewElement); </script>  <script src="https://cdn.jsdelivr.net/gh/shuzijun/markdown-editor@1.12/src/main/resources/vditor/dist/js/icons/ant.js"></script></body></html>
